@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "9000:9000"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/blackjack_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/blackjack_db_mongo
+    depends_on:
+      - mariadb
+      - mongo
+    networks:
+      - blackjack-network
+
+  mariadb:
+    image: mariadb:10.11
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: blackjack_db
+    ports:
+      - "3306:3306"
+    networks:
+      - blackjack-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      timeout: 20s
+      retries: 10
+
+  mongo:
+    image: mongo:7.0
+    environment:
+      MONGO_INITDB_DATABASE: blackjack_db_mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - blackjack-network
+
+networks:
+  blackjack-network:
+    driver: bridge
