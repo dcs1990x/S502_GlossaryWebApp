@@ -1,6 +1,9 @@
 package com.glossary_app.controller;
 
-import com.glossary_app.domain.dtos.CreateUserRequestDTO;
+import com.glossary_app.domain.dtos.request.CreateUserRequestDTO;
+import com.glossary_app.domain.dtos.request.UpdateUserNameRequestDTO;
+import com.glossary_app.domain.dtos.response.UserResponseDTO;
+import com.glossary_app.domain.dtos.response.UserWithCollectionsResponseDTO;
 import com.glossary_app.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -10,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 import java.util.UUID;
 
 @RestController
@@ -26,33 +28,45 @@ public class UserController {
 
     @PostMapping("/new")
     @Operation(summary = "Create a new user")
-    @ApiResponse(responseCode = "200 OK", description = "The user was changed successfully.")
+    @ApiResponse(responseCode = "201 CREATED", description = "The user was changed successfully.")
     public Mono<ResponseEntity<UserResponseDTO>> postNewUser(@RequestBody CreateUserRequestDTO createUserRequestDTO){
-        return userService.createNewPlayer(createUserRequestDTO)
-                .map(userResponseDTO -> ResponseEntity.status(HttpStatus.OK).body(userResponseDTO));
+        return userService.createNewUser(createUserRequestDTO)
+                .map(userResponseDTO -> ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO));
     }
 
-    @PutMapping("/{userId}")
-    @Operation(summary = "Change user name")
-    @ApiResponse(responseCode = "200 OK", description = "The user name was changed successfully.")
-    public Mono<ResponseEntity<UserResponseDTO>> putUserName(@PathVariable Long userId, @RequestBody UpdateUserNameRequestDTO updateUserNameRequestDTO){
-        return userService.updateUserName(userId, updatePlayerNameRequestDTO)
-                .map(userReponseDTO -> ResponseEntity.status(HttpStatus.OK).body(userReponseDTO));
+    @GetMapping("/{userId}")
+    @Operation(summary = "Get a user profile by their ID")
+    @ApiResponse(responseCode = "200 OK", description = "The user was retrieved successfully.")
+    @ApiResponse(responseCode = "404 NOT FOUND", description = "The user with the entered ID could not be found.")
+    public Mono<ResponseEntity<UserWithCollectionsResponseDTO>> getUser(@PathVariable UUID userId) {
+        return userService.getUserProfile(userId)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @GetMapping
     @Operation(summary = "Get all users list")
     @ApiResponse(responseCode = "200 OK", description = "The users list was retrieved successfully.")
-    public Flux<UserResponseDTO> getAllUsersList() {
+    public Flux<ResponseEntity<UserWithCollectionsResponseDTO>> getAllUsersList() {
         return userService.findAll()
                 .map(userReponseDTO -> ResponseEntity.status(HttpStatus.OK).body(userReponseDTO));
     }
 
+    @PutMapping("/{userId}")
+    @Operation(summary = "Change user name")
+    @ApiResponse(responseCode = "200 OK", description = "The user name was changed successfully.")
+    @ApiResponse(responseCode = "404 NOT FOUND", description = "The user with the entered ID could not be found.")
+    public Mono<ResponseEntity<UserResponseDTO>> putUserName(@PathVariable UUID userId, @RequestBody UpdateUserNameRequestDTO updateUserNameRequestDTO){
+        return userService.updateUserName(userId, updateUserNameRequestDTO)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{userId}")
-    @Operation(summary = "Delete a user by ID")
-    @ApiResponse(responseCode = "204", description = "The player was deleted successfully.")
+    @Operation(summary = "Delete a user by their ID")
+    @ApiResponse(responseCode = "204", description = "The user was deleted successfully.")
     public Mono<ResponseEntity<Void>> deletePlayer(@PathVariable UUID userId) {
-        return userService.deleteByUserId(userId)
+        return userService.deleteUserById(userId)
                 .then(Mono.just(ResponseEntity.noContent().build()));
     }
 }

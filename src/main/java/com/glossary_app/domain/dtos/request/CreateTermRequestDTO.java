@@ -1,4 +1,4 @@
-package com.glossary_app.domain.dtos;
+package com.glossary_app.domain.dtos.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
