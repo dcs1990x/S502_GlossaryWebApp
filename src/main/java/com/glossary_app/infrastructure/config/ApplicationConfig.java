@@ -1,11 +1,6 @@
 package com.glossary_app.infrastructure.config;
 
-import com.glossary_app.application.ports.out.UserRepositoryPort;
-import com.glossary_app.application.service.UserService;
-import com.glossary_app.application.service.usecases.CreateUserUseCaseImpl;
-import com.glossary_app.application.service.usecases.DeleteUserUseCaseImpl;
-import com.glossary_app.application.service.usecases.RetrieveUserUseCaseImpl;
-import com.glossary_app.application.service.usecases.UpdateUserUseCaseImpl;
+import com.glossary_app.application.ports.out.user.SaveUserRepositoryPort;
 import com.glossary_app.infrastructure.adapters.R2dbcUserRepositoryAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,24 +8,24 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ApplicationConfig {
 
-    @Bean
-    public UserService userServiceConfig(UserRepositoryPort userRepositoryPort){
+    /*@Bean
+    public UserService userServiceConfig(SaveUserRepositoryPort userRepositoryPort, UserValidationService userValidationService){
         return new UserService(
-                new CreateUserUseCaseImpl(userRepositoryPort),
+                new CreateUserUseCaseImpl(userRepositoryPort, userValidationService),
                 new RetrieveUserUseCaseImpl(userRepositoryPort),
                 new UpdateUserUseCaseImpl(userRepositoryPort),
                 new DeleteUserUseCaseImpl(userRepositoryPort)
         );
-    }
+    }*/
 
     @Bean
-    public UserRepositoryPort userRepositoryPortConfig(R2dbcUserRepositoryAdapter r2dbcUserRepositoryAdapter){
+    public SaveUserRepositoryPort userRepositoryPortConfig(R2dbcUserRepositoryAdapter r2dbcUserRepositoryAdapter){
         return r2dbcUserRepositoryAdapter;
     }
 
     /*
     @Bean
-    public CollectionService collectionServiceConfig(UserRepositoryPort userRepositoryPort){
+    public CollectionService collectionServiceConfig(SaveUserRepositoryPort userRepositoryPort){
         return new UserService(
                 new CreateUserUseCaseImpl(userRepositoryPort),
                 new RetrieveUserUseCaseImpl(userRepositoryPort),
@@ -45,7 +40,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public CardService cardServiceConfig(UserRepositoryPort userRepositoryPort){
+    public CardService cardServiceConfig(SaveUserRepositoryPort userRepositoryPort){
         return new UserService(
                 new CreateUserUseCaseImpl(userRepositoryPort),
                 new RetrieveUserUseCaseImpl(userRepositoryPort),

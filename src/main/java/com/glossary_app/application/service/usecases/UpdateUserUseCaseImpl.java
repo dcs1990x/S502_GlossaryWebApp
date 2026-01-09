@@ -1,30 +1,31 @@
 package com.glossary_app.application.service.usecases;
 
 import com.glossary_app.application.ports.in.users.UpdateUserUseCase;
-import com.glossary_app.application.ports.out.UserRepositoryPort;
+import com.glossary_app.application.ports.out.user.UpdateUserRepositoryPort;
 import com.glossary_app.domain.model.User;
+import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 public class UpdateUserUseCaseImpl implements UpdateUserUseCase {
 
-    private final UserRepositoryPort userRepositoryPort;
+    private final UpdateUserRepositoryPort updateUserRepositoryPort;
 
-    public UpdateUserUseCaseImpl(UserRepositoryPort userRepositoryPort) {
-        this.userRepositoryPort = userRepositoryPort;
+    public UpdateUserUseCaseImpl(UpdateUserRepositoryPort updateUserRepositoryPort) {
+        this.updateUserRepositoryPort = updateUserRepositoryPort;
     }
 
     @Override
-    public User updateNameByUserId(UUID userId, User user) {
-        return userRepositoryPort.updateUserName();
+    public Mono<User> updateNameByUserId(UUID userId) {
+        return updateUserRepositoryPort.updateUserName(userId);
     }
 
     @Override
-    public User updateEmailByUserId(UUID userId, User user) {
-        return userRepositoryPort.updateUserEmail();
+    public Mono<User> updateEmailByUserId(UUID userId) {
+        return updateUserRepositoryPort.updateUserEmail(userId);
     }
 
     @Override
-    public User updatePasswordByUserId(UUID userId, User user) {
-        return userRepositoryPort.updateUserPassword();
+    public Mono<User> updatePasswordByUserId(UUID userId) {
+        return updateUserRepositoryPort.updateUserPassword(userId);
     }
 }

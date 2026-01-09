@@ -1,11 +1,14 @@
 package com.glossary_app.infrastructure.controller;
 
-import com.glossary_app.application.service.UserService;
+import com.glossary_app.application.service.usecases.CreateUserUseCaseImpl;
+import com.glossary_app.application.service.usecases.DeleteUserUseCaseImpl;
+import com.glossary_app.application.service.usecases.RetrieveUserUseCaseImpl;
+import com.glossary_app.application.service.usecases.UpdateUserUseCaseImpl;
 import com.glossary_app.domain.dtos.request.*;
 import com.glossary_app.domain.dtos.response.UserResponseDTO;
 import com.glossary_app.domain.dtos.response.UserWithCollectionsResponseDTO;
 import com.glossary_app.domain.model.User;
-import com.glossary_app.infrastructure.mappers.DTOEntityMapper;
+import com.glossary_app.infrastructure.mappers.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,12 +28,21 @@ import java.util.UUID;
 @Tag(name = "Users", description = "CRUD API for Users in Glossary Study App")
 public class UserController {
 
-    private final UserService userService;
-    private final DTOEntityMapper dtoEntityMapper;
+    private final CreateUserUseCaseImpl createUserUseCaseImpl;
+    private final DeleteUserUseCaseImpl deleteUserUseCaseImpl;
+    private final RetrieveUserUseCaseImpl retrieveUserUseCaseImpl;
+    private final UpdateUserUseCaseImpl updateUserUseCaseImpl;
+    private final UserMapper userMapper;
 
-    public UserController(UserService userService, DTOEntityMapper dtoEntityMapper) {
-        this.userService = userService;
-        this.dtoEntityMapper = dtoEntityMapper;
+    public UserController(CreateUserUseCaseImpl createUserUseCaseImpl,
+                          DeleteUserUseCaseImpl deleteUserUseCaseImpl,
+                          RetrieveUserUseCaseImpl retrieveUserUseCaseImpl,
+                          UpdateUserUseCaseImpl updateUserUseCaseImpl, DeleteUserUseCaseImpl deleteUserUseCaseImpl1, RetrieveUserUseCaseImpl retrieveUserUseCaseImpl1, UpdateUserUseCaseImpl updateUserUseCaseImpl1, UserMapper userMapper) {
+        this.createUserUseCaseImpl = createUserUseCaseImpl;
+        this.deleteUserUseCaseImpl = deleteUserUseCaseImpl1;
+        this.retrieveUserUseCaseImpl = retrieveUserUseCaseImpl1;
+        this.updateUserUseCaseImpl = updateUserUseCaseImpl1;
+        this.userMapper = userMapper;
     }
 
     @PostMapping
@@ -48,12 +60,11 @@ public class UserController {
             )
     })
     public Mono<ResponseEntity<UserResponseDTO>> createUser(@Valid @RequestBody CreateUserRequestDTO request) {
-        User user = dtoEntityMapper.toDomain(request);
-        return userService.createNewUser(user)
-                .map(createdUser ->
-                        ResponseEntity
+        User user = userMapper.toDomain(request);
+        return createUserUseCaseImpl.createNewUser(user)
+                .map(createdUser -> ResponseEntity
                                 .created(URI.create("/users/" + createdUser.getUserName()))
-                                .body(createdUser)
+                                .body(userMapper.toResponseDTO(createdUser))
                 )
                 .onErrorResume(error ->
                         Mono.just(ResponseEntity.badRequest().build())
@@ -75,7 +86,7 @@ public class UserController {
             )
     })
     public Mono<ResponseEntity<UserWithCollectionsResponseDTO>> getUserById(@PathVariable UUID userId) {
-        return userService.getUserById(userId)
+        return retrieveUserUseCaseImpl.getUserById(userId)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -97,7 +108,7 @@ public class UserController {
             )
     })
     public Mono<ResponseEntity<List<UserResponseDTO>>> getAllUsers() {
-        return userService.getAllUsers()
+        return retrieveUserUseCaseImpl.getAllUsers()
                 .collectList()
                 .map(users ->
                         users.isEmpty()
@@ -121,7 +132,7 @@ public class UserController {
             )
     })
     public Mono<ResponseEntity<UserResponseDTO>> updateUserName(@PathVariable UUID userId, @Valid @RequestBody UpdateUserNameRequestDTO dto) {
-        return userService.updateNameByUserId(userId, dto)
+        return updateUserUseCaseImpl.updateNameByUserId(userId, dto)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -141,7 +152,7 @@ public class UserController {
             )
     })
     public Mono<ResponseEntity<UserResponseDTO>> updateUserName(@PathVariable UUID userId, @Valid @RequestBody UpdateEmailRequestDTO dto) {
-        return userService.updateEmailByUserId(userId, dto)
+        return updateUserUseCaseImpl.updateEmailByUserId(userId, dto)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -161,7 +172,7 @@ public class UserController {
             )
     })
     public Mono<ResponseEntity<UserResponseDTO>> updateUserName(@PathVariable UUID userId, @Valid @RequestBody UpdatePasswordRequestDTO dto) {
-        return userService.updatePasswordByUserId(userId, dto)
+        return updateUserUseCaseImpl.updatePasswordByUserId(userId, dto)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -179,7 +190,7 @@ public class UserController {
             )
     })
     public Mono<ResponseEntity<Void>> deleteUser(@PathVariable UUID userId) {
-        return userService.deleteUser(userId)
+        return deleteUserUseCaseImpl.deleteUser(userId)
                 .map(deleted -> ResponseEntity.noContent().<Void>build())
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }

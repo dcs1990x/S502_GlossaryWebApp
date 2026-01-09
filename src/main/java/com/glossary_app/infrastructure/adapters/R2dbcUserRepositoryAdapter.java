@@ -1,7 +1,10 @@
 package com.glossary_app.infrastructure.adapters;
 
-import com.glossary_app.application.ports.out.UserRepositoryPort;
-import com.glossary_app.infrastructure.mappers.ModelEntityMapper;
+import com.glossary_app.application.ports.out.user.DeleteUserRepositoryPort;
+import com.glossary_app.application.ports.out.user.FindUserRepositoryPort;
+import com.glossary_app.application.ports.out.user.SaveUserRepositoryPort;
+import com.glossary_app.application.ports.out.user.UpdateUserRepositoryPort;
+import com.glossary_app.infrastructure.mappers.UserPersistenceMapper;
 import com.glossary_app.infrastructure.entities.UserEntity;
 import com.glossary_app.domain.model.User;
 import com.glossary_app.infrastructure.persistence.UserRepository;
@@ -11,46 +14,46 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 @Repository
-public class R2dbcUserRepositoryAdapter implements UserRepositoryPort {
+public class R2dbcUserRepositoryAdapter implements SaveUserRepositoryPort, FindUserRepositoryPort, UpdateUserRepositoryPort, DeleteUserRepositoryPort {
 
     private final UserRepository userRepository;
-    private final ModelEntityMapper modelEntityMapper;
+    private final UserPersistenceMapper userPersistenceMapper;
 
-    public R2dbcUserRepositoryAdapter(UserRepository userRepository, ModelEntityMapper modelEntityMapper) {
+    public R2dbcUserRepositoryAdapter(UserRepository userRepository, UserPersistenceMapper userPersistenceMapper) {
         this.userRepository = userRepository;
-        this.modelEntityMapper = modelEntityMapper;
+        this.userPersistenceMapper = userPersistenceMapper;
     }
 
     @Override
     public Mono<User> saveUser(User user) {
-        UserEntity entity = modelEntityMapper.toEntity(user);
+        UserEntity entity = userPersistenceMapper.toEntity(user);
         return userRepository.save(entity)
-                .map(modelEntityMapper::toDomain);
+                .map(userPersistenceMapper::toDomain);
     }
 
     @Override
     public Mono<User> findUserById(UUID userId) {
         return userRepository.findById(userId)
-                .map(modelEntityMapper::toDomain);
+                .map(userPersistenceMapper::toDomain);
     }
 
     @Override
     public Mono<User> findByEmail(String email) {
         return userRepository.findUserByEmail(email)
-                .map(modelEntityMapper::toDomain);
+                .map(userPersistenceMapper::toDomain);
     }
 
     @Override
     public Flux<User> findAllUsers() {
         return userRepository.findAll()
-                .map(modelEntityMapper::toDomain);
+                .map(userPersistenceMapper::toDomain);
     }
 
-    @Override
+    /*@Override
     public Mono<Boolean> existsByEmail(String email){
         return userRepository.findUserByEmail(email)
                 .map(UserEntity::isActive);
-    }
+    }*/
 
     @Override
     public Mono<Void> deleteUserById(UUID userId) {

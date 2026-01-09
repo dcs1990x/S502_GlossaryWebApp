@@ -1,7 +1,8 @@
 package com.glossary_app.application.service.usecases;
 
 import com.glossary_app.application.ports.in.users.RetrieveUserUseCase;
-import com.glossary_app.application.ports.out.UserRepositoryPort;
+import com.glossary_app.application.ports.out.user.FindUserRepositoryPort;
+import com.glossary_app.application.ports.out.user.SaveUserRepositoryPort;
 import com.glossary_app.domain.dtos.response.CardResponseDTO;
 import com.glossary_app.domain.dtos.response.CollectionResponseDTO;
 import com.glossary_app.domain.dtos.response.UserWithCollectionsResponseDTO;
@@ -14,14 +15,14 @@ import java.util.UUID;
 @Service
 public class RetrieveUserUseCaseImpl implements RetrieveUserUseCase {
 
-    private final UserRepositoryPort userRepositoryPort;
+    private final FindUserRepositoryPort findUserRepositoryPort;
 
-    public RetrieveUserUseCaseImpl(UserRepositoryPort userRepositoryPort){
-        this.userRepositoryPort = userRepositoryPort;
+    public RetrieveUserUseCaseImpl(SaveUserRepositoryPort saveUserRepositoryPort, FindUserRepositoryPort findUserRepositoryPort){
+        this.findUserRepositoryPort = findUserRepositoryPort;
     }
 
     public Mono<UserWithCollectionsResponseDTO> getUserById(UUID userId) {
-        Mono<User> userMono = userRepositoryPort.findUserById(userId);
+        Mono<User> userMono = findUserRepositoryPort.findUserById(userId);
         Flux<CollectionResponseDTO> collectionsFlux =
                 collectionRepository.findByUserId(userId)
                         .flatMap(collection ->
@@ -49,6 +50,6 @@ public class RetrieveUserUseCaseImpl implements RetrieveUserUseCase {
 
     @Override
     public Flux<User> getAllUsers() {
-        return userRepositoryPort.findAllUsers();
+        return findUserRepositoryPort.findAllUsers();
     }
 }

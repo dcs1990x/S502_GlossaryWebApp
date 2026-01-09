@@ -3,6 +3,8 @@ package com.glossary_app.domain.model;
 import lombok.Builder;
 import lombok.Getter;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -13,8 +15,8 @@ public class User {
     private final String email;
     private final String password;
     private final Instant createdDate;
-    private final boolean isActive;
     private final Instant deletedDate;
+    private final List<Collection> collections;
 
     public static User createNewUser(String email, String password) {
         validateEmail(email);
@@ -24,8 +26,8 @@ public class User {
                 .email(email.trim())
                 .password(password)
                 .createdDate(Instant.now())
-                .isActive(true)
                 .deletedDate(null)
+                .collections(new ArrayList<>())
                 .build();
     }
 
@@ -35,8 +37,8 @@ public class User {
             String email,
             String password,
             Instant createdDate,
-            boolean isActive,
-            Instant deletedDate
+            Instant deletedDate,
+            List<Collection> collections
     ) {
         validateEmail(email);
         return User.builder()
@@ -45,8 +47,8 @@ public class User {
                 .email(email)
                 .password(password)
                 .createdDate(createdDate)
-                .isActive(isActive)
                 .deletedDate(deletedDate)
+                .collections(collections)
                 .build();
     }
 
@@ -62,14 +64,12 @@ public class User {
 
     public User deactivate() {
         return this.toBuilder()
-                .isActive(false)
                 .deletedDate(Instant.now())
                 .build();
     }
 
     public User activate() {
         return this.toBuilder()
-                .isActive(true)
                 .deletedDate(null)
                 .build();
     }
