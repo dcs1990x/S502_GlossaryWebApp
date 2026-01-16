@@ -1,6 +1,6 @@
 package com.glossary_app.infrastructure.config;
 
-import com.glossary_app.application.ports.out.user.SaveUserRepositoryPort;
+import com.glossary_app.application.ports.out.user.UserRepositoryPort;
 import com.glossary_app.infrastructure.adapters.R2dbcUserRepositoryAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,7 @@ public class ApplicationConfig {
     }*/
 
     @Bean
-    public SaveUserRepositoryPort userRepositoryPortConfig(R2dbcUserRepositoryAdapter r2dbcUserRepositoryAdapter){
+    public UserRepositoryPort userRepositoryPortConfig(R2dbcUserRepositoryAdapter r2dbcUserRepositoryAdapter){
         return r2dbcUserRepositoryAdapter;
     }
 

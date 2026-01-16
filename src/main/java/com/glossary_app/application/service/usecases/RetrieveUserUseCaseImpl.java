@@ -1,8 +1,7 @@
 package com.glossary_app.application.service.usecases;
 
 import com.glossary_app.application.ports.in.users.RetrieveUserUseCase;
-import com.glossary_app.application.ports.out.user.FindUserRepositoryPort;
-import com.glossary_app.application.ports.out.user.SaveUserRepositoryPort;
+import com.glossary_app.application.ports.out.user.UserRepositoryPort;
 import com.glossary_app.domain.dtos.response.CardResponseDTO;
 import com.glossary_app.domain.dtos.response.CollectionResponseDTO;
 import com.glossary_app.domain.dtos.response.UserWithCollectionsResponseDTO;
@@ -15,14 +14,14 @@ import java.util.UUID;
 @Service
 public class RetrieveUserUseCaseImpl implements RetrieveUserUseCase {
 
-    private final FindUserRepositoryPort findUserRepositoryPort;
+    private final UserRepositoryPort userRepositoryPort;
 
-    public RetrieveUserUseCaseImpl(SaveUserRepositoryPort saveUserRepositoryPort, FindUserRepositoryPort findUserRepositoryPort){
-        this.findUserRepositoryPort = findUserRepositoryPort;
+    public RetrieveUserUseCaseImpl(UserRepositoryPort userRepositoryPort){
+        this.userRepositoryPort = userRepositoryPort;
     }
 
-    public Mono<UserWithCollectionsResponseDTO> getUserById(UUID userId) {
-        Mono<User> userMono = findUserRepositoryPort.findUserById(userId);
+    public Mono<User> getUserById(UUID userId) {
+        Mono<User> userMono = userRepositoryPort.findUserById(userId);
         Flux<CollectionResponseDTO> collectionsFlux =
                 collectionRepository.findByUserId(userId)
                         .flatMap(collection ->
@@ -41,15 +40,23 @@ public class RetrieveUserUseCaseImpl implements RetrieveUserUseCase {
         return userMono.zipWith(
                 collectionsFlux.collectList(),
                 (user, collections) -> new UserWithCollectionsResponseDTO(
+                        user.getUserId(),
                         user.getUserName(),
                         user.getEmail(),
+                        user.getPassword(),
+                        user.getCreatedDate(),
+                        user.getDeletedDate(),
                         collections
                 )
         );
     }
 
+    public Mono<User> getUserWithCollections(UUID userId) {
+
+    }
+
     @Override
     public Flux<User> getAllUsers() {
-        return findUserRepositoryPort.findAllUsers();
+        return userRepositoryPort.findAllUsers();
     }
 }

@@ -1,9 +1,6 @@
 package com.glossary_app.infrastructure.adapters;
 
-import com.glossary_app.application.ports.out.user.DeleteUserRepositoryPort;
-import com.glossary_app.application.ports.out.user.FindUserRepositoryPort;
-import com.glossary_app.application.ports.out.user.SaveUserRepositoryPort;
-import com.glossary_app.application.ports.out.user.UpdateUserRepositoryPort;
+import com.glossary_app.application.ports.out.user.UserRepositoryPort;
 import com.glossary_app.infrastructure.mappers.UserPersistenceMapper;
 import com.glossary_app.infrastructure.entities.UserEntity;
 import com.glossary_app.domain.model.User;
@@ -14,7 +11,7 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 @Repository
-public class R2dbcUserRepositoryAdapter implements SaveUserRepositoryPort, FindUserRepositoryPort, UpdateUserRepositoryPort, DeleteUserRepositoryPort {
+public class R2dbcUserRepositoryAdapter implements UserRepositoryPort {
 
     private final UserRepository userRepository;
     private final UserPersistenceMapper userPersistenceMapper;
@@ -54,6 +51,21 @@ public class R2dbcUserRepositoryAdapter implements SaveUserRepositoryPort, FindU
         return userRepository.findUserByEmail(email)
                 .map(UserEntity::isActive);
     }*/
+
+    @Override
+    public Mono<User> updateUserName(User user) {
+        return null;
+    }
+
+    @Override
+    public Mono<User> updateUserEmail(User user) {
+        return null;
+    }
+
+    @Override
+    public Mono<User> updateUserPassword(User user) {
+        return null;
+    }
 
     @Override
     public Mono<Void> deleteUserById(UUID userId) {

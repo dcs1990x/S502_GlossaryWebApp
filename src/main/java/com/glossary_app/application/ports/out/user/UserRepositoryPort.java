@@ -5,9 +5,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.util.UUID;
 
-public interface FindUserRepositoryPort {
+public interface UserRepositoryPort {
+    Mono<User> saveUser(User user);
     Mono<User> findUserById(UUID userId);
-    Mono<User> findByEmail(String email);
     Flux<User> findAllUsers();
-    //Mono<Boolean> existsByEmail(String email);
+    Mono<Boolean> existsById(UUID userId);
+    Mono<Void> deleteUserById(UUID userId);
 }

@@ -1,13 +1,11 @@
 package com.glossary_app.domain.model;
 
 import lombok.Builder;
-import lombok.Getter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Getter
 @Builder(toBuilder = true)
 public class User {
     private final UUID userId;
@@ -17,6 +15,23 @@ public class User {
     private final Instant createdDate;
     private final Instant deletedDate;
     private final List<Collection> collections;
+
+    public UUID getUserId() { return userId; }
+    public String getUserName() { return userName; }
+    public String getEmail() { return email; }
+    public String getPassword() { return password; }
+
+    public User withName(String newName) {
+        return new User(this.userId, newName, this.email, this.password, this.createdDate, this.deletedDate, this.collections);
+    }
+
+    public User withEmail(String newEmail) {
+        return new User(this.userId, this.userName, newEmail, this.password, this.createdDate, this.deletedDate, this.collections);
+    }
+
+    public User withPassword(String newPassword) {
+        return new User(this.userId, this.userName, this.email, newPassword, this.createdDate, this.deletedDate, this.collections);
+    }
 
     public static User createNewUser(String email, String password) {
         validateEmail(email);

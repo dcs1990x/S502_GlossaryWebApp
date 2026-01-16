@@ -7,5 +7,6 @@ import java.util.UUID;
 
 public interface RetrieveUserUseCase {
     Mono<User> getUserById(UUID userId);
+    Mono<User> getUserWithCollections(UUID userId);
     Flux<User> getAllUsers();
 }
