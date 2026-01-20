@@ -1,31 +1,31 @@
-package com.glossary_app.application.service.usecases;
+package com.glossary_app.application.service.userUseCases;
 
 import com.glossary_app.application.ports.in.users.CreateUserUseCase;
 import com.glossary_app.application.ports.out.UserRepositoryPort;
 import com.glossary_app.domain.UserValidationService;
-import com.glossary_app.infrastructure.mappers.DTOEntityMapper;
-import com.glossary_app.infrastructure.mappers.ModelEntityMapper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
+import com.glossary_app.domain.model.User;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import static reactor.netty.http.HttpConnectionLiveness.log;
 
 @Service
-@RequiredArgsConstructor
 public class CreateUserUseCaseImpl implements CreateUserUseCase {
 
     private final UserRepositoryPort userRepositoryPort;
-    private final ModelEntityMapper modelEntityMapper;
-    private final DTOEntityMapper dtoEntityMapper;
     private final UserValidationService validationService;
+
+    public CreateUserUseCaseImpl(UserRepositoryPort userRepositoryPort, UserValidationService validationService) {
+        this.userRepositoryPort = userRepositoryPort;
+        this.validationService = validationService;
+    }
 
     @Override
     public Mono<User> createNewUser(User user) {
         return Mono.just(user)
-                .flatMap(req -> validationService.validateEmailNotExists(req.email())
+                .flatMap(req -> validationService.validateEmailNotExists(req.getEmail())
                         .thenReturn(req))
-                .map(req -> com.glossary_app.domain.model.User.createNewUser(req.email(), req.password()))
+                .map(req -> User.createNewUser(req.getEmail(), req.getPassword()))
                 .flatMap(userRepositoryPort::saveUser)
                 .doOnSuccess(createdUser ->
                         log.info("CreateUserRequestDTO created successfully: {}", createdUser.getUserId()))

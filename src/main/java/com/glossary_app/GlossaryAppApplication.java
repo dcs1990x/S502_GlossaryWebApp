@@ -9,5 +9,4 @@ public class GlossaryAppApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(GlossaryAppApplication.class, args);
 	}
-
 }

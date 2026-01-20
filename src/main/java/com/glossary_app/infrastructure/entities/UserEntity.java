@@ -32,6 +32,5 @@ public class UserEntity {
     private String password;
 
     private Instant createdDate;
-    private boolean isActive;
     private Instant deletedDate;
 }

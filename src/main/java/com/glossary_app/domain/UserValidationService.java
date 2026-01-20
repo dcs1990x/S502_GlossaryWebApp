@@ -12,7 +12,7 @@ public class UserValidationService {
     private final UserRepositoryPort userRepositoryPort;
 
     public Mono<Void> validateEmailNotExists(String email) {
-        return userRepositoryPort.findByEmail(email)
+        return userRepositoryPort.findUserByEmail(email)
                 .flatMap(user -> Mono.<Void>error(
                         new IllegalArgumentException("Email already exists: " + email)
                 ))

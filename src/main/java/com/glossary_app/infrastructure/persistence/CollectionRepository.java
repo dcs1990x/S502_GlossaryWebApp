@@ -8,5 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface CollectionRepository extends ReactiveCrudRepository<CollectionEntity, UUID> {
-    Flux<CollectionEntity> findByUserId(UUID userId);
+    Flux<CollectionEntity> findAllCollectionsByUserId(UUID userId);
 }

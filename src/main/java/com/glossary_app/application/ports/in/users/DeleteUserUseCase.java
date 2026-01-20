@@ -1,7 +1,8 @@
 package com.glossary_app.application.ports.in.users;
 
+import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 public interface DeleteUserUseCase {
-    void deleteUser(UUID userId);
+    Mono<Void> deleteUser(UUID userId);
 }

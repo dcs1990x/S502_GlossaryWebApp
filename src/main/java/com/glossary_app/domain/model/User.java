@@ -1,30 +1,48 @@
 package com.glossary_app.domain.model;
 
 import lombok.Builder;
-import lombok.Getter;
 import java.time.Instant;
 import java.util.UUID;
 
-@Getter
 @Builder(toBuilder = true)
 public class User {
+
     private final UUID userId;
     private final String userName;
     private final String email;
     private final String password;
     private final Instant createdDate;
-    private final boolean isActive;
     private final Instant deletedDate;
+
+    public UUID getUserId() { return userId; }
+    public String getUserName() { return userName; }
+    public String getEmail() { return email; }
+    public String getPassword() { return password; }
+    public Instant getCreatedDate() { return createdDate; }
+    public Instant getDeletedDate() { return deletedDate; }
+
+    public User changeName(String newName) {
+        validateUserName(newName);
+        return new User(this.userId, newName, this.email, this.password, this.createdDate, this.deletedDate);
+    }
+
+    public User changeEmail(String newEmail) {
+        return new User(this.userId, this.userName, newEmail, this.password, this.createdDate, this.deletedDate);
+    }
+
+    public User changePassword(String newPassword) {
+        return new User(this.userId, this.userName, this.email, newPassword, this.createdDate, this.deletedDate);
+    }
 
     public static User createNewUser(String email, String password) {
         validateEmail(email);
+        validatePassword(password);
         return User.builder()
                 .userId(UUID.randomUUID())
                 .userName(extractUserNameFromEmail(email))
                 .email(email.trim())
                 .password(password)
                 .createdDate(Instant.now())
-                .isActive(true)
                 .deletedDate(null)
                 .build();
     }
@@ -35,24 +53,35 @@ public class User {
             String email,
             String password,
             Instant createdDate,
-            boolean isActive,
             Instant deletedDate
     ) {
         validateEmail(email);
+        validatePassword(password);
         return User.builder()
                 .userId(userId)
                 .userName(userName)
                 .email(email)
                 .password(password)
                 .createdDate(createdDate)
-                .isActive(isActive)
                 .deletedDate(deletedDate)
                 .build();
+    }
+
+    private static void validateUserName(String userName) {
+        if (userName == null || userName.isBlank()) {
+            throw new IllegalArgumentException("Username cannot be empty.");
+        }
     }
 
     private static void validateEmail(String email) {
         if (email == null || !email.contains("@")) {
             throw new IllegalArgumentException("Invalid email format.");
+        }
+    }
+
+    private static void validatePassword(String password) {
+        if (password == null || password.isBlank()) {
+            throw new IllegalArgumentException("Password cannot be empty.");
         }
     }
 
@@ -62,19 +91,13 @@ public class User {
 
     public User deactivate() {
         return this.toBuilder()
-                .isActive(false)
                 .deletedDate(Instant.now())
                 .build();
     }
 
     public User activate() {
         return this.toBuilder()
-                .isActive(true)
                 .deletedDate(null)
                 .build();
-    }
-
-    public boolean isDeleted() {
-        return deletedDate != null;
     }
 }
