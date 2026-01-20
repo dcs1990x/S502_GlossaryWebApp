@@ -1,4 +1,4 @@
-package com.glossary_app.application.ports.out.user;
+package com.glossary_app.application.ports.out;
 
 import com.glossary_app.domain.model.User;
 import reactor.core.publisher.Flux;
@@ -8,7 +8,11 @@ import java.util.UUID;
 public interface UserRepositoryPort {
     Mono<User> saveUser(User user);
     Mono<User> findUserById(UUID userId);
+    Mono<User> findUserByEmail(String email);
     Flux<User> findAllUsers();
-    Mono<Boolean> existsById(UUID userId);
+    //Mono<Boolean> existsById(UUID userId);
+    Mono<User> updateUserName(User user);
+    Mono<User> updateUserEmail(User user);
+    Mono<User> updateUserPassword(User user);
     Mono<Void> deleteUserById(UUID userId);
 }

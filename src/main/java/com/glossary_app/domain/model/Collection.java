@@ -1,14 +1,17 @@
 package com.glossary_app.domain.model;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class Collection {
     private final UUID collectionId;
-    private final String collectionName;
-    private final List<Card> cards;
+    private String collectionName;
+    private final Set<Card> cards;
 
-    public Collection(UUID collectionId, String collectionName, List<Card> cards) {
+    public Collection(UUID collectionId, String collectionName, Set<Card> cards) {
+        if (collectionName == null || collectionName.isBlank()) {
+            throw new IllegalArgumentException("Collection name cannot be empty.");
+        }
         this.collectionId = collectionId;
         this.collectionName = collectionName;
         this.cards = cards;
@@ -22,7 +25,25 @@ public class Collection {
         return collectionName;
     }
 
-    public List<Card> getCards() {
-        return List.copyOf(cards);
+    public Set<Card> getCards() {
+        return Set.copyOf(cards);
+    }
+
+    public void rename(String newName) {
+        if (newName.isBlank()) {
+            throw new IllegalArgumentException("Collection name cannot be empty.");
+        }
+        this.collectionName = newName;
+    }
+
+    public void addCard(Card card) {
+        cards.add(card);
+    }
+
+    public void removeCard(Card card) {
+        if (cards.isEmpty() || !cards.remove(card)) {
+            throw new IllegalStateException("Collection is empty.");
+        }
+        cards.remove(card);
     }
 }

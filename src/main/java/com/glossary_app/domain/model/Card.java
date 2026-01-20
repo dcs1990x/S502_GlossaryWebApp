@@ -1,20 +1,21 @@
 package com.glossary_app.domain.model;
 
-import java.util.UUID;
+import java.util.Objects;
 
-public class Card {
-    private final UUID cardId;
+public final class Card {
+
     private final String frontText;
     private final String backText;
 
-    public Card(UUID cardId, String frontText, String backText) {
-        this.cardId = cardId;
+    public Card(String frontText, String backText) {
+        if (frontText == null || frontText.isBlank()) {
+            throw new IllegalArgumentException("Front text cannot be empty.");
+        }
+        if (backText == null || backText.isBlank()) {
+            throw new IllegalArgumentException("Back text cannot be empty.");
+        }
         this.frontText = frontText;
         this.backText = backText;
-    }
-
-    public  UUID getCardId() {
-        return cardId;
     }
 
     public String getFrontText() {
@@ -23,5 +24,18 @@ public class Card {
 
     public String getBackText() {
         return backText;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Card card)) return false;
+        return frontText.equals(card.frontText)
+                && backText.equals(card.backText);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(frontText, backText);
     }
 }

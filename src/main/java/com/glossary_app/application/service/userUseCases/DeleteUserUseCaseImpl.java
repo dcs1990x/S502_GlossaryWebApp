@@ -1,13 +1,15 @@
-package com.glossary_app.application.service.usecases;
+package com.glossary_app.application.service.userUseCases;
 
 import com.glossary_app.application.ports.in.users.DeleteUserUseCase;
-import com.glossary_app.application.ports.out.user.UserRepositoryPort;
+import com.glossary_app.application.ports.out.UserRepositoryPort;
 import com.glossary_app.domain.exceptions.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import java.util.UUID;
 
+@Service
 public class DeleteUserUseCaseImpl implements DeleteUserUseCase {
 
     private final UserRepositoryPort userRepositoryPort;

@@ -13,5 +13,9 @@ public class CreateCardRequestDTO {
 
     @NotBlank
     @Size(min = 1, max = 50, message = "Text can only be up to 50 characters long.")
-    private String term;
+    private String frontText;
+
+    @NotBlank
+    @Size(min = 1, max = 50, message = "Text can only be up to 50 characters long.")
+    private String backText;
 }

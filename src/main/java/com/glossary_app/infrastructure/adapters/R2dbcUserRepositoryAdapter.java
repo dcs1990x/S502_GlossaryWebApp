@@ -1,7 +1,8 @@
 package com.glossary_app.infrastructure.adapters;
 
-import com.glossary_app.application.ports.out.user.UserRepositoryPort;
-import com.glossary_app.infrastructure.mappers.UserPersistenceMapper;
+import com.glossary_app.application.ports.out.UserRepositoryPort;
+import com.glossary_app.domain.exceptions.UserNotFoundException;
+import com.glossary_app.infrastructure.mappers.user.UserPersistenceMapper;
 import com.glossary_app.infrastructure.entities.UserEntity;
 import com.glossary_app.domain.model.User;
 import com.glossary_app.infrastructure.persistence.UserRepository;
@@ -35,8 +36,8 @@ public class R2dbcUserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public Mono<User> findByEmail(String email) {
-        return userRepository.findUserByEmail(email)
+    public Mono<User> findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
                 .map(userPersistenceMapper::toDomain);
     }
 
@@ -54,22 +55,42 @@ public class R2dbcUserRepositoryAdapter implements UserRepositoryPort {
 
     @Override
     public Mono<User> updateUserName(User user) {
-        return null;
+        return userRepository.findById(user.getUserId())
+                .switchIfEmpty(Mono.error(new RuntimeException("User not found")))
+                .map(entity -> {
+                    entity.setUserName(user.getUserName());
+                    return entity;
+                })
+                .flatMap(userRepository::save)
+                .map(userPersistenceMapper::toDomain);
     }
 
     @Override
     public Mono<User> updateUserEmail(User user) {
-        return null;
+        return userRepository.findById(user.getUserId())
+                .switchIfEmpty(Mono.error(new RuntimeException("User not found")))
+                .map(entity -> {
+                    entity.setEmail(user.getEmail());
+                    return entity;
+                })
+                .flatMap(userRepository::save)
+                .map(userPersistenceMapper::toDomain);
     }
 
     @Override
     public Mono<User> updateUserPassword(User user) {
-        return null;
+        return userRepository.findById(user.getUserId())
+                .switchIfEmpty(Mono.error(new UserNotFoundException(user.getUserId())))
+                .map(entity -> {
+                    entity.setPassword(user.getPassword());
+                    return entity;
+                })
+                .flatMap(userRepository::save)
+                .map(userPersistenceMapper::toDomain);
     }
 
     @Override
     public Mono<Void> deleteUserById(UUID userId) {
-        userRepository.deleteById(userId);
-        return null;
+        return userRepository.deleteById(userId);
     }
 }

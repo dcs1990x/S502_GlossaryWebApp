@@ -11,9 +11,12 @@ import com.glossary_app.domain.exceptions.ErrorResponse;
 import com.glossary_app.domain.exceptions.InvalidEmailException;
 import com.glossary_app.domain.exceptions.InvalidPasswordException;
 import com.glossary_app.domain.exceptions.UserNotFoundException;
+import com.glossary_app.domain.model.Collection;
 import com.glossary_app.domain.model.User;
-import com.glossary_app.infrastructure.mappers.UserMapper;
+import com.glossary_app.infrastructure.mappers.collection.CollectionMapper;
+import com.glossary_app.infrastructure.mappers.user.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,14 +26,14 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
-@Tag(name = "Users", description = "CRUD API for Users in Glossary Study App")
+@Tag(name = "Users", description = "CRUD controller managing user actions")
 public class UserController {
 
     private final CreateUserUseCase createUserUseCaseImpl;
@@ -38,17 +41,19 @@ public class UserController {
     private final RetrieveUserUseCase retrieveUserUseCaseImpl;
     private final UpdateUserUseCase updateUserUseCaseImpl;
     private final UserMapper userMapper;
+    private final CollectionMapper collectionMapper;
 
     public UserController(CreateUserUseCase createUserUseCaseImpl,
                           DeleteUserUseCase deleteUserUseCaseImpl,
                           RetrieveUserUseCase retrieveUserUseCaseImpl,
                           UpdateUserUseCase updateUserUseCaseImpl,
-                          UserMapper userMapper) {
+                          UserMapper userMapper, CollectionMapper collectionMapper) {
         this.createUserUseCaseImpl = createUserUseCaseImpl;
         this.deleteUserUseCaseImpl = deleteUserUseCaseImpl;
         this.retrieveUserUseCaseImpl = retrieveUserUseCaseImpl;
         this.updateUserUseCaseImpl = updateUserUseCaseImpl;
         this.userMapper = userMapper;
+        this.collectionMapper = collectionMapper;
     }
 
     @PostMapping
@@ -83,7 +88,7 @@ public class UserController {
             @ApiResponse(
                     responseCode = "200",
                     description = "User found.",
-                    content = @Content(schema = @Schema(implementation = UserWithCollectionsResponseDTO.class))
+                    content = @Content(schema = @Schema(implementation = UserResponseDTO.class))
             ),
             @ApiResponse(
                     responseCode = "404",
@@ -91,13 +96,14 @@ public class UserController {
                     content = @Content
             )
     })
-    public Mono<ResponseEntity<User>> getUserById(@PathVariable UUID userId) {
+    public Mono<ResponseEntity<UserResponseDTO>> getUserById(@PathVariable UUID userId) {
         return retrieveUserUseCaseImpl.getUserById(userId)
+                .map(userMapper::toUserResponseDTO)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    GetMapping("/{userId}")
+    @GetMapping("/{userId}/collections")
     @Operation(summary = "Get a user profile with all their collections")
     @ApiResponses({
             @ApiResponse(
@@ -111,45 +117,26 @@ public class UserController {
                     content = @Content
             )
     })
-    public Mono<ResponseEntity<UserWithCollectionsResponseDTO>> getUserWithCollections(
-            @PathVariable UUID userId,
-            @RequestParam(required = false, defaultValue = "false") boolean withCollections) {
-
-        if (withCollections) {
-            return retrieveUserUseCaseImpl.getUserWithCollections(userId)
-                    .map(user -> ResponseEntity.ok(userMapper.toUserWithCollectionsResponseDTO(user)))
-                    .defaultIfEmpty(ResponseEntity.notFound().build());
-        } else {
-            return retrieveUserUseCaseImpl.getUserById(userId)
-                    .map(user -> ResponseEntity.ok(userMapper.toUserResponseDTO(user)))
-                    .defaultIfEmpty(ResponseEntity.notFound().build());
-        }
+    public Mono<ResponseEntity<UserWithCollectionsResponseDTO>> getUserWithCollections(@PathVariable UUID userId) {
+        return retrieveUserUseCaseImpl.getUserWithCollections(userId)
+                .map(userMapper::toUserWithCollectionsResponseDTO)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    @Operation(summary = "Get the list of all users")
+    @Operation(summary = "Get all users")
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "Users retrieved successfully.",
-                    content = @Content(
-                            schema = @Schema(implementation = UserResponseDTO.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "No users found.",
-                    content = @Content
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserResponseDTO.class)))
             )
     })
-    public Mono<ResponseEntity<List<UserResponseDTO>>> getAllUsers() {
+    public Flux<ResponseEntity<UserResponseDTO>> getAllUsers() {
         return retrieveUserUseCaseImpl.getAllUsers()
-                .collectList()
-                .map(users ->
-                        users.isEmpty()
-                                ? ResponseEntity.notFound().build()
-                                : ResponseEntity.ok(users)
-                );
+                .map(userMapper::toUserResponseDTO)
+                .map(ResponseEntity::ok);
     }
 
     @PutMapping("/{userId}")
@@ -168,6 +155,7 @@ public class UserController {
     })
     public Mono<ResponseEntity<UserResponseDTO>> updateUserName(@PathVariable UUID userId, @Valid @RequestBody UpdateUserNameRequestDTO dto) {
         return updateUserUseCaseImpl.updateNameByUserId(userId, dto.newUserName())
+                .map(userMapper::toUserResponseDTO)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -188,7 +176,8 @@ public class UserController {
     })
     public Mono<ResponseEntity<UserResponseDTO>> updateEmail(@PathVariable UUID userId, @Valid @RequestBody UpdateEmailRequestDTO dto) {
         return updateUserUseCaseImpl.updateEmailByUserId(userId, dto.newEmailAddress())
-                .map(user -> ResponseEntity.ok(userMapper.toUserResponseDTO(user)))
+                .map(userMapper::toUserResponseDTO)
+                .map(ResponseEntity::ok)
                 .onErrorResume(InvalidEmailException.class,
                         e -> Mono.just(ResponseEntity.status(403).build()))
                 .onErrorResume(UserNotFoundException.class,
@@ -211,7 +200,8 @@ public class UserController {
     })
     public Mono<ResponseEntity<UserResponseDTO>> updatePassword(@PathVariable UUID userId, @Valid @RequestBody UpdatePasswordRequestDTO dto) {
         return updateUserUseCaseImpl.updatePasswordByUserId(userId, dto.newPassword())
-                .map(user -> ResponseEntity.ok(userMapper.toUserResponseDTO(user)))
+                .map(userMapper::toUserResponseDTO)
+                .map(ResponseEntity::ok)
                 .onErrorResume(InvalidPasswordException.class,
                         e -> Mono.just(ResponseEntity.status(403).build()))
                 .onErrorResume(UserNotFoundException.class,

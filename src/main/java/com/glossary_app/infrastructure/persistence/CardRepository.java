@@ -10,7 +10,7 @@ import java.util.UUID;
 @Repository
 public interface CardRepository extends ReactiveCrudRepository<CardEntity, UUID> {
     Flux<CardEntity> findAllByUserId(UUID userId);
-    Mono<CardEntity> findCardByCollectionId(UUID collectionId);
+    Mono<CardEntity> findCardById(Long CardId);
     Flux<CardEntity> findAllCardsByCollectionId(UUID collectionId);
     Mono<CardEntity> findCardById(UUID cardId);
     Mono<Void> deleteCardById(UUID cardId);

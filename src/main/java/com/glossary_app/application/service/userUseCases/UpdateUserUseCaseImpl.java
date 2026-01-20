@@ -1,12 +1,14 @@
-package com.glossary_app.application.service.usecases;
+package com.glossary_app.application.service.userUseCases;
 
 import com.glossary_app.application.ports.in.users.UpdateUserUseCase;
-import com.glossary_app.application.ports.out.user.UserRepositoryPort;
+import com.glossary_app.application.ports.out.UserRepositoryPort;
 import com.glossary_app.domain.exceptions.UserNotFoundException;
 import com.glossary_app.domain.model.User;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import java.util.UUID;
 
+@Service
 public class UpdateUserUseCaseImpl implements UpdateUserUseCase {
 
     private final UserRepositoryPort userRepositoryPort;

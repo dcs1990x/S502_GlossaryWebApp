@@ -1,6 +1,6 @@
 package com.glossary_app.infrastructure.config;
 
-import com.glossary_app.application.ports.out.user.UserRepositoryPort;
+import com.glossary_app.application.ports.out.UserRepositoryPort;
 import com.glossary_app.infrastructure.adapters.R2dbcUserRepositoryAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
