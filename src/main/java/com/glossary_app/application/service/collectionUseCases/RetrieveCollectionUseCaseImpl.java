@@ -19,17 +19,23 @@ public class RetrieveCollectionUseCaseImpl implements RetrieveCollectionUseCase 
 
     @Override
     public Mono<Collection> getCollectionById(UUID collectionId) {
-        return null;
+        return collectionRepositoryPort.findCollectionById(collectionId)
+                .switchIfEmpty(Mono.empty())
+                .flatMap(this::addCardsToCollection);
     }
 
     @Override
     public Flux<Collection> getCollectionsByUserId(UUID userId) {
         return collectionRepositoryPort.findCollectionsByUserId(userId)
-                .flatMap(collection -> collectionRepositoryPort.findCardsByCollectionId(collection.getCollectionId())
-                        .collectList()
-                        .map(cards -> {
-                            cards.forEach(collection::addCard);
-                            return collection;
-                        }));
+                .flatMap(this::addCardsToCollection);
+    }
+
+    private Mono<Collection> addCardsToCollection(Collection collection) {
+        return collectionRepositoryPort.findCardsByCollectionId(collection.getCollectionId())
+                .collectList()
+                .map(cards -> {
+                    cards.forEach(collection::addCard);
+                    return collection;
+                });
     }
 }

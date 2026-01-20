@@ -41,7 +41,6 @@ public class UserController {
     private final RetrieveUserUseCase retrieveUserUseCaseImpl;
     private final UpdateUserUseCase updateUserUseCaseImpl;
     private final UserMapper userMapper;
-    private final CollectionMapper collectionMapper;
 
     public UserController(CreateUserUseCase createUserUseCaseImpl,
                           DeleteUserUseCase deleteUserUseCaseImpl,
@@ -53,7 +52,6 @@ public class UserController {
         this.retrieveUserUseCaseImpl = retrieveUserUseCaseImpl;
         this.updateUserUseCaseImpl = updateUserUseCaseImpl;
         this.userMapper = userMapper;
-        this.collectionMapper = collectionMapper;
     }
 
     @PostMapping
@@ -222,7 +220,7 @@ public class UserController {
             ),
             @ApiResponse(
                     responseCode = "401",
-                    description = "Not authenticated - invalid or expired TWT token",
+                    description = "Not authenticated - invalid or expired JWT token.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             ),
             @ApiResponse(

@@ -28,11 +28,17 @@ public interface CollectionPersistenceMapper {
         );
     }
 
-    CollectionEntity toEntity(Collection collection, UUID userId);
+    default CollectionEntity toEntity(Collection collection) {
+        if (collection == null) return null;
+        CollectionEntity entity = new CollectionEntity();
+        entity.setCollectionId(collection.getCollectionId());
+        entity.setCollectionName(collection.getCollectionName());
+        return entity;
+    }
 
     default Card toCardDomain(CardEntity cardEntity) {
         if (cardEntity == null) return null;
-        return new Card(cardEntity.getFrontText(), cardEntity.getBackText());
+        return new Card(cardEntity.getCardId(), cardEntity.getFrontText(), cardEntity.getBackText());
     }
 
     default CardEntity toCardEntity(Card card, UUID collectionId) {

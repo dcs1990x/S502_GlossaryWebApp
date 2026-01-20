@@ -11,6 +11,5 @@ public interface CollectionRepositoryPort {
     Mono<Collection> findCollectionById(UUID collectionId);
     Flux<Collection> findCollectionsByUserId(UUID userId);
     Flux<Card> findCardsByCollectionId(UUID collectionId);
-    Mono<Collection> updateCollectionName(Collection collection);
     Mono<Void> deleteCollectionById(UUID collectionId);
 }

@@ -1,9 +1,11 @@
 package com.glossary_app.domain.model;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
 public class Collection {
+
     private final UUID collectionId;
     private String collectionName;
     private final Set<Card> cards;
@@ -13,7 +15,7 @@ public class Collection {
             throw new IllegalArgumentException("Collection name cannot be empty.");
         }
         this.collectionId = collectionId;
-        this.collectionName = collectionName;
+        renameCollection(collectionName);
         this.cards = cards;
     }
 
@@ -29,21 +31,43 @@ public class Collection {
         return Set.copyOf(cards);
     }
 
-    public void rename(String newName) {
-        if (newName.isBlank()) {
+    public void renameCollection(String newCollectionName) {
+        if (newCollectionName.isBlank()) {
             throw new IllegalArgumentException("Collection name cannot be empty.");
         }
-        this.collectionName = newName;
+        this.collectionName = newCollectionName;
+    }
+
+    public Card findCard(Long cardId) {
+        Objects.requireNonNull(cardId, "Card ID cannot be null");
+        return cards.stream()
+                .filter(card -> cardId.equals(card.getCardId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Card not found."));
     }
 
     public void addCard(Card card) {
         cards.add(card);
     }
 
-    public void removeCard(Card card) {
-        if (cards.isEmpty() || !cards.remove(card)) {
-            throw new IllegalStateException("Collection is empty.");
+    public void updateCardFrontText(Long cardId, String newText) {
+        Card card = findCard(cardId);
+        card.setFrontText(newText);
+    }
+
+    public void updateCardBackText(Long cardId, String newText) {
+        Card card = findCard(cardId);
+        card.setBackText(newText);
+    }
+
+    public void removeCard(Long cardId) {
+        Objects.requireNonNull(cardId, "Card ID cannot be null.");
+        boolean removed = cards.removeIf(card -> cardId.equals(card.getCardId()));
+
+        if (!removed) {
+            throw new IllegalArgumentException(
+                    String.format("Card with ID %d not found in collection", cardId)
+            );
         }
-        cards.remove(card);
     }
 }

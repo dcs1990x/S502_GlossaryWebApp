@@ -6,7 +6,9 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 public interface UpdateCollectionUseCase {
-    Mono<Collection> addCardToCollection(UUID collectionId, String card);
-    Mono<Collection> updateCollectionName(UUID collectionId, String name);
-    Mono<Collection> deleteCardFromCollection(UUID collectionId, Card cardId);
+    Mono<Collection> updateCollectionName(UUID collectionId, String newName);
+    Mono<Collection> addCardToCollection(UUID collectionId, String frontText, String backText);
+    Mono<Collection> renameCardFrontText(UUID collectionId, Long cardId, String newFrontText);
+    Mono<Collection> renameCardBackText(UUID collectionId, Long cardId, String newBackText);
+    Mono<Collection> deleteCardFromCollection(UUID collectionId, Long cardId);
 }

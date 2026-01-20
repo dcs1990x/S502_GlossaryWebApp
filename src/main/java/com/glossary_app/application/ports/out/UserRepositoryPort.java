@@ -10,9 +10,5 @@ public interface UserRepositoryPort {
     Mono<User> findUserById(UUID userId);
     Mono<User> findUserByEmail(String email);
     Flux<User> findAllUsers();
-    //Mono<Boolean> existsById(UUID userId);
-    Mono<User> updateUserName(User user);
-    Mono<User> updateUserEmail(User user);
-    Mono<User> updateUserPassword(User user);
     Mono<Void> deleteUserById(UUID userId);
 }

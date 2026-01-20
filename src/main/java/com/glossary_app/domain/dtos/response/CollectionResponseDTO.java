@@ -6,4 +6,4 @@ import java.util.UUID;
 public record CollectionResponseDTO(
         UUID collectionId,
         String collectionName,
-        Set<CardResponseDTO> cardSet) {}
+        Set<CardResponseDTO> cards) {}

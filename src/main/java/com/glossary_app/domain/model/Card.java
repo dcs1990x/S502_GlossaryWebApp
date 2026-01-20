@@ -2,12 +2,14 @@ package com.glossary_app.domain.model;
 
 import java.util.Objects;
 
-public final class Card {
+public class Card {
 
-    private final String frontText;
-    private final String backText;
+    private final Long cardId;
+    private String frontText;
+    private String backText;
 
-    public Card(String frontText, String backText) {
+    public Card(Long cardId, String frontText, String backText) {
+        this.cardId = cardId;
         if (frontText == null || frontText.isBlank()) {
             throw new IllegalArgumentException("Front text cannot be empty.");
         }
@@ -18,12 +20,30 @@ public final class Card {
         this.backText = backText;
     }
 
+    public Long getCardId() {
+        return cardId;
+    }
+
     public String getFrontText() {
         return frontText;
     }
 
     public String getBackText() {
         return backText;
+    }
+
+    public void setFrontText(String newFrontText) {
+        if (newFrontText == null || newFrontText.isBlank()) {
+            throw new IllegalArgumentException("New front text cannot be empty.");
+        }
+        this.frontText = newFrontText;
+    }
+
+    public void setBackText(String newBackText) {
+        if (newBackText == null || newBackText.isBlank()) {
+            throw new IllegalArgumentException("New front text cannot be empty.");
+        }
+        this.backText = newBackText;
     }
 
     @Override

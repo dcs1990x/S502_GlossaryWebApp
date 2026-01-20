@@ -15,7 +15,7 @@ import java.util.UUID;
 public class CardEntity {
 
     @Id
-    private UUID cardId;
+    private Long cardId;
     private UUID collectionId;
 
     @NotBlank

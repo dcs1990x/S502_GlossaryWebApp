@@ -5,5 +5,5 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 public interface CreateCollectionUseCase {
-    Mono<Collection> createNewCollection(Collection collection, UUID userId);
+    Mono<Collection> createNewCollection(UUID userId, String name);
 }

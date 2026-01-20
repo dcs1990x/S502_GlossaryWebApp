@@ -21,15 +21,16 @@ public class User {
     public Instant getCreatedDate() { return createdDate; }
     public Instant getDeletedDate() { return deletedDate; }
 
-    public User withName(String newName) {
+    public User changeName(String newName) {
+        validateUserName(newName);
         return new User(this.userId, newName, this.email, this.password, this.createdDate, this.deletedDate);
     }
 
-    public User withEmail(String newEmail) {
+    public User changeEmail(String newEmail) {
         return new User(this.userId, this.userName, newEmail, this.password, this.createdDate, this.deletedDate);
     }
 
-    public User withPassword(String newPassword) {
+    public User changePassword(String newPassword) {
         return new User(this.userId, this.userName, this.email, newPassword, this.createdDate, this.deletedDate);
     }
 
@@ -98,9 +99,5 @@ public class User {
         return this.toBuilder()
                 .deletedDate(null)
                 .build();
-    }
-
-    public boolean isDeleted() {
-        return deletedDate != null;
     }
 }

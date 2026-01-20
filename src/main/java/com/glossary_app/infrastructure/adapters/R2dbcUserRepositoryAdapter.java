@@ -1,7 +1,6 @@
 package com.glossary_app.infrastructure.adapters;
 
 import com.glossary_app.application.ports.out.UserRepositoryPort;
-import com.glossary_app.domain.exceptions.UserNotFoundException;
 import com.glossary_app.infrastructure.mappers.user.UserPersistenceMapper;
 import com.glossary_app.infrastructure.entities.UserEntity;
 import com.glossary_app.domain.model.User;
@@ -44,48 +43,6 @@ public class R2dbcUserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public Flux<User> findAllUsers() {
         return userRepository.findAll()
-                .map(userPersistenceMapper::toDomain);
-    }
-
-    /*@Override
-    public Mono<Boolean> existsByEmail(String email){
-        return userRepository.findUserByEmail(email)
-                .map(UserEntity::isActive);
-    }*/
-
-    @Override
-    public Mono<User> updateUserName(User user) {
-        return userRepository.findById(user.getUserId())
-                .switchIfEmpty(Mono.error(new RuntimeException("User not found")))
-                .map(entity -> {
-                    entity.setUserName(user.getUserName());
-                    return entity;
-                })
-                .flatMap(userRepository::save)
-                .map(userPersistenceMapper::toDomain);
-    }
-
-    @Override
-    public Mono<User> updateUserEmail(User user) {
-        return userRepository.findById(user.getUserId())
-                .switchIfEmpty(Mono.error(new RuntimeException("User not found")))
-                .map(entity -> {
-                    entity.setEmail(user.getEmail());
-                    return entity;
-                })
-                .flatMap(userRepository::save)
-                .map(userPersistenceMapper::toDomain);
-    }
-
-    @Override
-    public Mono<User> updateUserPassword(User user) {
-        return userRepository.findById(user.getUserId())
-                .switchIfEmpty(Mono.error(new UserNotFoundException(user.getUserId())))
-                .map(entity -> {
-                    entity.setPassword(user.getPassword());
-                    return entity;
-                })
-                .flatMap(userRepository::save)
                 .map(userPersistenceMapper::toDomain);
     }
 

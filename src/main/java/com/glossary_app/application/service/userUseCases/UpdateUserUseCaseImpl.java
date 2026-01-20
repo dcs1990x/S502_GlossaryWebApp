@@ -21,7 +21,7 @@ public class UpdateUserUseCaseImpl implements UpdateUserUseCase {
     public Mono<User> updateNameByUserId(UUID userId, String newName) {
         return userRepositoryPort.findUserById(userId)
                 .switchIfEmpty(Mono.error(new UserNotFoundException(userId)))
-                .map(user -> user.withName(newName))
+                .map(user -> user.changeName(newName))
                 .flatMap(userRepositoryPort::saveUser);
     }
 
@@ -29,7 +29,7 @@ public class UpdateUserUseCaseImpl implements UpdateUserUseCase {
     public Mono<User> updateEmailByUserId(UUID userId, String newEmail) {
         return userRepositoryPort.findUserById(userId)
                 .switchIfEmpty(Mono.error(new UserNotFoundException(userId)))
-                .map(user -> user.withName(newEmail))
+                .map(user -> user.changeName(newEmail))
                 .flatMap(userRepositoryPort::saveUser);
     }
 
@@ -37,7 +37,7 @@ public class UpdateUserUseCaseImpl implements UpdateUserUseCase {
     public Mono<User> updatePasswordByUserId(UUID userId, String newPassword) {
         return userRepositoryPort.findUserById(userId)
                 .switchIfEmpty(Mono.error(new UserNotFoundException(userId)))
-                .map(user -> user.withName(newPassword))
+                .map(user -> user.changeName(newPassword))
                 .flatMap(userRepositoryPort::saveUser);
     }
 }
